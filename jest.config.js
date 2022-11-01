@@ -27,4 +27,8 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
+  watchPathIgnorePatterns: [
+    '__file_snapshots__', // jest-file-snapshot
+  ],
+
 };

@@ -6,7 +6,15 @@ import objectHash from 'object-hash';
 
 expect.extend({ toMatchFile });
 
-const getRawFile = (path: string): string => require(path);
+type TestFile = {
+  path: string,
+  code: string,
+}
+
+const getRawFile = (path: string): TestFile => ({
+  path,
+  code: require(path),
+});
 
 const basicForShow = getRawFile('./data/basic-for-show.raw');
 const basicBooleanAttribute = getRawFile('./data/basic-boolean-attribute.raw');
@@ -96,7 +104,7 @@ const rootFragmentMultiNode = getRawFile('./data/blocks/root-fragment-multi-node
 
 const path = 'test-path';
 
-type Tests = { [index: string]: string };
+type Tests = { [index: string]: TestFile };
 
 const BASIC_TESTS: Tests = {
   Basic: basic,
@@ -391,7 +399,7 @@ const TESTS_FOR_TARGET: Partial<Record<Target, Tests[]>> = {
 
 export const runTestsForJsx = () => {
   test('Remove Internal mitosis package', () => {
-    const component = parseJsx(basicMitosis, {
+    const component = parseJsx(basicMitosis.code, {
       compileAwayPackages: ['@dummy/custom-mitosis'],
     });
     expect(component).toMatchSnapshot();
@@ -399,8 +407,8 @@ export const runTestsForJsx = () => {
 
   JSX_TESTS.forEach((tests) => {
     Object.keys(tests).forEach((key) => {
-      test(key, () => {
-        const component = parseJsx(tests[key]);
+      test(`${key} ${tests[key].path}`, () => {
+        const component = parseJsx(tests[key].code);
         expect(component).toMatchSnapshot();
       });
     });
@@ -422,7 +430,7 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
   const testsArray = TESTS_FOR_TARGET[target];
 
   test('Remove Internal mitosis package', () => {
-    const component = parseJsx(basicMitosis, {
+    const component = parseJsx(basicMitosis.code, {
       compileAwayPackages: ['@dummy/custom-mitosis'],
     });
     const output = generator(options)({ component, path });
@@ -445,8 +453,8 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
       describe(testNameFull, () => {
         testsArray.forEach((tests) => {
           Object.keys(tests).forEach((key) => {
-            test(key, () => {
-              const component = parseJsx(tests[key], { typescript: options.typescript });
+            test(`${key} ${tests[key].path}`, () => {
+              const component = parseJsx(tests[key].code, { typescript: options.typescript });
               const getOutput = () => generator(options)({ component, path });
               // handle internal errors
               // only "getOutput()" should be in the try block

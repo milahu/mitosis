@@ -467,7 +467,9 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
                 //expect(String(error)).toMatchFile();
               }
               if (output !== undefined) {
+                //expect(output).toMatchSnapshot();
                 expect(output).toMatchFile(undefined, {
+                  // https://github.com/satya164/jest-file-snapshot/pull/29
                   fileExtension: ".tsx",
                 });
               }

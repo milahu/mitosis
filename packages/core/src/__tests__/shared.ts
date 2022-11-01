@@ -440,10 +440,17 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
             test(key, () => {
               const component = parseJsx(tests[key], { typescript: options.typescript });
               const getOutput = () => generator(options)({ component, path });
+              // handle internal errors
+              // only "getOutput()" should be in the try block
+              let output
               try {
-                expect(getOutput()).toMatchFile();
+                output = getOutput()
               } catch (error) {
-                expect(getOutput).toThrowErrorMatchingSnapshot();
+                expect(error).toMatchSnapshot();
+                //expect(String(error)).toMatchFile();
+              }
+              if (output !== undefined) {
+                expect(output).toMatchFile();
               }
             });
           });

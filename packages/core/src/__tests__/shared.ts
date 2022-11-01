@@ -462,7 +462,8 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
               try {
                 output = getOutput()
               } catch (error) {
-                expect(error).toMatchSnapshot();
+                expect(getOutput).toThrowErrorMatchingSnapshot();
+                //expect(error).toMatchSnapshot();
                 //expect(String(error)).toMatchFile();
               }
               if (output !== undefined) {

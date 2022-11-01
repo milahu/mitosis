@@ -3,6 +3,7 @@ import { Target } from '../types/config';
 import { parseJsx } from '../parsers/jsx';
 import { toMatchFile } from 'jest-file-snapshot';
 import objectHash from 'object-hash';
+import { join as joinPath } from 'path';
 
 expect.extend({ toMatchFile });
 
@@ -444,16 +445,27 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
 
   if (testsArray) {
     configurations.forEach(({ options, testName }) => {
+      const cleanOptions = { ...options }
+      delete cleanOptions.typescript
+      const optionsName = (
+        Object.keys(cleanOptions).length == 0 ? '' :
+        optionsId ? optionsId :
+        objectHash(cleanOptions).slice(0, 5)
+      )
       const testNameFull = (
-        !options ? testName :
-        Object.keys(options).length == 0 ? testName :
-        optionsId ? `${testName} ${optionsId}` :
-        `${testName} ${objectHash(options).slice(0, 5)}`
+        optionsName ? `${testName} ${optionsName}` :
+        testName
       )
       describe(testNameFull, () => {
         testsArray.forEach((tests) => {
           Object.keys(tests).forEach((key) => {
-            test(`${key} ${tests[key].path}`, () => {
+            const cleanTestPath = (
+              tests[key].path
+              //.replace(/^\.\/data\//, '')
+              .replace(/\.raw$/, '')
+            )
+            // path in test name to avoid collisions
+            test(`${key} ${cleanTestPath}`, () => {
               const component = parseJsx(tests[key].code, { typescript: options.typescript });
               const getOutput = () => generator(options)({ component, path });
               // handle internal errors
@@ -468,10 +480,21 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
               }
               if (output !== undefined) {
                 //expect(output).toMatchSnapshot();
-                expect(output).toMatchFile(undefined, {
-                  // https://github.com/satya164/jest-file-snapshot/pull/29
-                  fileExtension: ".tsx",
-                });
+                const outputExtension = (
+                  options.typescript ? 'tsx' :
+                  'jsx'
+                )
+                const outputPath = joinPath(
+                  __dirname,
+                  '__file_snapshots__',
+                  [
+                    cleanTestPath,
+                    target,
+                    optionsName,
+                    outputExtension,
+                  ].filter(Boolean).join('.')
+                )
+                expect(output).toMatchFile(outputPath);
               }
             });
           });

@@ -450,7 +450,9 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
                 //expect(String(error)).toMatchFile();
               }
               if (output !== undefined) {
-                expect(output).toMatchFile();
+                expect(output).toMatchFile(undefined, {
+                  fileExtension: ".tsx",
+                });
               }
             });
           });

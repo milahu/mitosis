@@ -2,6 +2,7 @@ import { BaseTranspilerOptions, TranspilerGenerator } from '../types/transpiler'
 import { Target } from '../types/config';
 import { parseJsx } from '../parsers/jsx';
 import { toMatchFile } from 'jest-file-snapshot';
+import objectHash from 'object-hash';
 
 expect.extend({ toMatchFile });
 
@@ -436,7 +437,8 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
 
   if (testsArray) {
     configurations.forEach(({ options, testName }) => {
-      describe(testName, () => {
+      const optionsHash = objectHash(options).slice(0, 5);
+      describe(`${testName} options-${optionsHash}`, () => {
         testsArray.forEach((tests) => {
           Object.keys(tests).forEach((key) => {
             test(key, () => {

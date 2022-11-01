@@ -96,10 +96,6 @@ const rootFragmentMultiNode = getRawFile('./data/blocks/root-fragment-multi-node
 
 const path = 'test-path';
 
-// TODO move this section (lines 100 - 390) to a separate file
-// src/__tests__/tests.ts?
-// src/__tests__/shared-tests.ts?
-// src/__tests__/index.ts?
 type Tests = { [index: string]: string };
 
 const BASIC_TESTS: Tests = {
@@ -445,27 +441,10 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
               const component = parseJsx(tests[key], { typescript: options.typescript });
               const getOutput = () => generator(options)({ component, path });
               try {
-                // FIXME collisions in filename
-                // yarn run test src/__tests__/solid.test.ts -t Basic
-                // Snapshots:   30 failed, 26 written, 56 total
                 expect(getOutput()).toMatchFile();
               } catch (error) {
                 expect(getOutput).toThrowErrorMatchingSnapshot();
               }
-              /*
-              // TODO handle internal errors
-              // only "getOutput()" should be in the try block
-              let output
-              try {
-                output = getOutput()
-              } catch (error) {
-                expect(error).toMatchSnapshot();
-                //expect(String(error)).toMatchFile();
-              }
-              if (output) {
-                expect(output).toMatchFile();
-              }
-              */
             });
           });
         });

@@ -15,7 +15,7 @@ const basicContext = getRawFile('./data/basic-context.raw');
 const basicOutputsMeta = getRawFile('./data/basic-outputs-meta.raw');
 const basicOutputs = getRawFile('./data/basic-outputs.raw');
 const subComponent = getRawFile('./data/sub-component.lite.jsx');
-const componentWithContext = require('./data/context/component-with-context.lite');
+const componentWithContext = getRawFile('./data/context/component-with-context.lite');
 
 const basic = getRawFile('./data/basic.raw');
 const basicAttribute = getRawFile('./data/basic-attribute.raw.tsx');

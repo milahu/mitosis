@@ -411,10 +411,13 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
   target,
   generator,
   options,
+  optionsId,
 }: {
   target: Target;
   generator: TranspilerGenerator<X>;
   options: X;
+  /** optional human-readable name for multiple runTestsForTarget calls */
+  optionsId?: string,
 }) => {
   const testsArray = TESTS_FOR_TARGET[target];
 
@@ -433,8 +436,13 @@ export const runTestsForTarget = <X extends BaseTranspilerOptions>({
 
   if (testsArray) {
     configurations.forEach(({ options, testName }) => {
-      const optionsHash = objectHash(options).slice(0, 5);
-      describe(`${testName} options-${optionsHash}`, () => {
+      const testNameFull = (
+        !options ? testName :
+        Object.keys(options).length == 0 ? testName :
+        optionsId ? `${testName} ${optionsId}` :
+        `${testName} ${objectHash(options).slice(0, 5)}`
+      )
+      describe(testNameFull, () => {
         testsArray.forEach((tests) => {
           Object.keys(tests).forEach((key) => {
             test(key, () => {
